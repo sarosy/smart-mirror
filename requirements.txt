@@ -1,0 +1,7 @@
+google-auth 
+google-auth-oauthlib 
+google-auth-httplib2 
+google-api-python-client
+pyqt5
+python-dotenv
+requests
