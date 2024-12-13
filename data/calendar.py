@@ -110,6 +110,7 @@ class GoogleCal:
                 # Sorting events by start date
                 sorted_events = sorted(all_events, key=lambda event: event['start']['dateTime'])
                 
+                event_strings = []
                 for event in sorted_events:
                     # Get start and end values as datetime objects
                     start_dt = datetime.datetime.strptime(event['start'].get('dateTime', event['start'].get('date')), GOOGLE_DATE_EVENT_FORMAT)
@@ -122,7 +123,9 @@ class GoogleCal:
                     else:
                         end = end_dt.strftime(DESIRED_DATE_FORMAT)
 
-                    print(f"{start} - {end}: {event['summary']}")
+                    event_strings.append(f"{start} - {end}: {event['summary']}")
+
+            return event_strings
         
         except Exception as e:
             print(f"An error occurred: {e}")
