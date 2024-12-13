@@ -20,6 +20,11 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 # File for storing credentials
 CREDENTIALS_FILE = 'gcal_credentials.json'
 
+GOOGLE_DATE_QUERY_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+GOOGLE_DATE_EVENT_FORMAT = '%Y-%m-%dT%H:%M:%S%z'
+DESIRED_DATE_FORMAT = '%m/%d %I:%M %p'
+DESIRED_TIME_FORMAT = '%I:%M %p'
+
 class GoogleCal:
     def __init__(self):
         self.creds = self.authenticate_google_account()
@@ -56,7 +61,7 @@ class GoogleCal:
             with open(CREDENTIALS_FILE, 'w', encoding='utf-8') as token:
                 token_data = creds.to_json()  # Get credentials as JSON
                 creds_dict = json.loads(token_data)
-                json.dumps(creds_dict, token)  # Save the dictionary to file
+                json.dump(creds_dict, token)  # Save the dictionary to file
 
         return creds
     
@@ -81,8 +86,8 @@ class GoogleCal:
             now = datetime.datetime.now(datetime.timezone.utc)
             timedelta = datetime.timedelta(days=7)
             week_end = now + timedelta
-            time_min = now.strftime('%Y-%m-%dT%H:%M:%SZ')
-            time_max = week_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+            time_min = now.strftime(GOOGLE_DATE_QUERY_FORMAT)
+            time_max = week_end.strftime(GOOGLE_DATE_QUERY_FORMAT)
 
             for calendar in enabled_calendars:
                 events_result = service.events().list(
@@ -101,10 +106,23 @@ class GoogleCal:
                 print("No upcoming events found in any calendars.")
             else:
                 print("Upcoming events from all calendars:")
-                for event in all_events:
-                    start = event['start'].get('dateTime', event['start'].get('date'))
-                    print(f"{start}: {event['summary']}")
+                
+                # Sorting events by start date
+                sorted_events = sorted(all_events, key=lambda event: event['start']['dateTime'])
+                
+                for event in sorted_events:
+                    # Get start and end values as datetime objects
+                    start_dt = datetime.datetime.strptime(event['start'].get('dateTime', event['start'].get('date')), GOOGLE_DATE_EVENT_FORMAT)
+                    end_dt = datetime.datetime.strptime(event['end'].get('dateTime', event['end'].get('date')), GOOGLE_DATE_EVENT_FORMAT)
+                    
+                    # Format the DateTimes as strings. Cut off the date for end if single day event
+                    start = start_dt.strftime(DESIRED_DATE_FORMAT)
+                    if start_dt.date() == end_dt.date():
+                        end = end_dt.time().strftime(DESIRED_TIME_FORMAT)
+                    else:
+                        end = end_dt.strftime(DESIRED_DATE_FORMAT)
 
+                    print(f"{start} - {end}: {event['summary']}")
         
         except Exception as e:
             print(f"An error occurred: {e}")
