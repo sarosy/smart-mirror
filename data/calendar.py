@@ -62,5 +62,50 @@ class GoogleCal:
     
 
     def fetch_calendar_events(self):
-        # Mock function to fetch calendar events.
-        return ["Meeting at 10 AM", "Lunch with Cam at 1 PM", "Gym at 6 PM"]
+
+        try:
+            service = build('calendar', 'v3', credentials=self.creds)
+
+            # List all calendars the user has access to
+            calendar_list = service.calendarList().list().execute()
+
+            enabled_calendars = []
+
+            for calendar in calendar_list['items']:
+                # Check if the calendar is selected (enabled)
+                if calendar.get('selected', True):
+                    enabled_calendars.append(calendar)
+
+            all_events = []
+
+            now = datetime.datetime.now(datetime.timezone.utc)
+            timedelta = datetime.timedelta(days=7)
+            week_end = now + timedelta
+            time_min = now.strftime('%Y-%m-%dT%H:%M:%SZ')
+            time_max = week_end.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+            for calendar in enabled_calendars:
+                events_result = service.events().list(
+                    calendarId=calendar['id'],
+                    timeMin=time_min,
+                    timeMax=time_max,
+                    maxResults=5,
+                    singleEvents=True,
+                    orderBy='startTime'
+                ).execute()
+
+                events = events_result.get('items', [])
+                all_events.extend(events)
+
+            if not all_events:
+                print("No upcoming events found in any calendars.")
+            else:
+                print("Upcoming events from all calendars:")
+                for event in all_events:
+                    start = event['start'].get('dateTime', event['start'].get('date'))
+                    print(f"{start}: {event['summary']}")
+
+        
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
