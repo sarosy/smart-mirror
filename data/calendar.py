@@ -104,9 +104,7 @@ class GoogleCal:
 
             if not all_events:
                 print("No upcoming events found in any calendars.")
-            else:
-                print("Upcoming events from all calendars:")
-                
+            else:                
                 # Sorting events by start date
                 sorted_events = sorted(all_events, key=lambda event: event['start']['dateTime'])
                 

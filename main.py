@@ -7,16 +7,14 @@ from ui.display import MainWindow
 import sys
 
 CITY = "Denver"
+
 def main(): 
     # load env variables for secret keys
     load_dotenv()
-    weather_api_key = os.getenv('OPENWEATHER_API_KEY')
+    weather_api_key = os.getenv('WEATHER_API_KEY')
 
     weather = Weather(weather_api_key, CITY)
     calendar = GoogleCal()
-
-    # print(weather.fetch_weather("Denver"))
-    # print(calendar.fetch_calendar_events())
 
     # Create the application instance
     app = QApplication(sys.argv)
