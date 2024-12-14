@@ -47,7 +47,7 @@ class WeatherWidget(QWidget):
         label.setPixmap(pixmap)
  
         # Resize label to image size
-        # label.resize(pixmap.width(),pixmap.height())
+        label.resize(pixmap.width(),pixmap.height())
 
         layout.addWidget(label)
 
@@ -100,10 +100,10 @@ class MainWindow(QMainWindow):
 
         # Add Widgets
         weather_widget = WeatherWidget(weather)
-        # calendar_widget = CalendarWidget(calendar)
+        calendar_widget = CalendarWidget(calendar)
 
         layout.addWidget(weather_widget)
-        # layout.addWidget(calendar_widget)
+        layout.addWidget(calendar_widget)
 
         central_widget.setLayout(layout)
 

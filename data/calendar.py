@@ -1,24 +1,16 @@
 import datetime
+from dotenv import load_dotenv
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-import os
-
-import os
 import json
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+import os
 
 # Define the scopes your app needs
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-
-# File for storing credentials
-CREDENTIALS_FILE = 'gcal_credentials.json'
 
 GOOGLE_DATE_QUERY_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 GOOGLE_DATE_EVENT_FORMAT = '%Y-%m-%dT%H:%M:%S%z'
@@ -30,10 +22,17 @@ class GoogleCal:
         self.creds = self.authenticate_google_account()
 
     def authenticate_google_account(self):
+
+        # load env variables for token and key file locations
+        load_dotenv()
+        token_file = os.getenv('GOOGLE_TOKEN_FILE')
+        secret_file = os.getenv('GOOGLE_SECRET_FILE')
+        
         creds = None
+
         # Check if the token.json file exists, which stores user credentials
-        if os.path.exists(CREDENTIALS_FILE):
-            with open(CREDENTIALS_FILE, 'r', encoding='utf-8') as token:
+        if os.path.exists(token_file):
+            with open(token_file, 'r', encoding='utf-8') as token:
                 try:
                     creds_data = json.load(token)
                     if isinstance(creds_data, dict):  # Ensure it's a dictionary
@@ -54,11 +53,11 @@ class GoogleCal:
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    'client_secret.json', SCOPES)
+                    secret_file, SCOPES)
                 creds = flow.run_local_server(port=0)
 
             # Save the credentials to a file (using JSON)
-            with open(CREDENTIALS_FILE, 'w', encoding='utf-8') as token:
+            with open(token_file, 'w', encoding='utf-8') as token:
                 token_data = creds.to_json()  # Get credentials as JSON
                 creds_dict = json.loads(token_data)
                 json.dump(creds_dict, token)  # Save the dictionary to file

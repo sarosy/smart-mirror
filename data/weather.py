@@ -1,21 +1,15 @@
 import datetime
 import json
-import pytz
 import requests
-from .location import TZ
-
-# CURRENT_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
-# DAILY_WEATHER_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
 WEATHER_URL = "https://api.weatherapi.com/v1/forecast.json"
 ICONS_FILE = "ui/icons.json"
-
 
 class Weather:
     def __init__(self, api_key, city):
        self.api_key = api_key
        self.city = city
-       self.timezone = pytz.timezone(TZ)
+       self.timezone = datetime.datetime.now().astimezone().tzinfo
        self.weather = None
        with open(ICONS_FILE, 'r', encoding='utf-8') as f:
             self.icons = json.load(f)
