@@ -1,7 +1,5 @@
-import os
-from dotenv import load_dotenv
-from data.weather import Weather
 from data.calendar import GoogleCal
+from data.weather import Weather
 from PyQt5.QtWidgets import QApplication
 from ui.display import MainWindow
 import sys
@@ -10,11 +8,8 @@ CITY = "Denver"
 STYLE_SHEET="ui/stylesheet.qss"
 
 def main(): 
-    # load env variables for secret keys
-    load_dotenv()
-    weather_api_key = os.getenv('WEATHER_API_KEY')
 
-    weather = Weather(weather_api_key, CITY)
+    weather = Weather(CITY)
     calendar = GoogleCal()
 
     # Create the application instance

@@ -1,17 +1,24 @@
 import datetime
+from dotenv import load_dotenv
 import json
+import os
 import requests
 
 WEATHER_URL = "https://api.weatherapi.com/v1/forecast.json"
 ICONS_FILE = "ui/icons.json"
 
 class Weather:
-    def __init__(self, api_key, city):
-       self.api_key = api_key
-       self.city = city
-       self.timezone = datetime.datetime.now().astimezone().tzinfo
-       self.weather = None
-       with open(ICONS_FILE, 'r', encoding='utf-8') as f:
+    def __init__(self, city):
+
+        # load env variables for secret keys
+        load_dotenv()
+        api_key = os.getenv('WEATHER_API_KEY')
+        self.api_key = api_key
+
+        self.city = city
+        self.timezone = datetime.datetime.now().astimezone().tzinfo
+        self.weather = None
+        with open(ICONS_FILE, 'r', encoding='utf-8') as f:
             self.icons = json.load(f)
 
     def fetch_weather(self):
