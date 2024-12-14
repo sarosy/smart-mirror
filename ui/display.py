@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget, QMainWindow, QListWidget
 from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QPixmap
 from datetime import datetime
 import sys
 
@@ -34,7 +35,22 @@ class WeatherWidget(QWidget):
         weather_label = QLabel("Today's weather:")
         layout.addWidget(weather_label)
 
+        # Fetching current weather and creating label
         weather_now = QLabel(self.weather.fetch_weather())
+        
+        # Getting icon for current conditions and loading image
+        icon = self.weather.get_icon()
+        pixmap = QPixmap(icon)
+ 
+        # Creating label and adding image to it
+        label = QLabel()
+        label.setPixmap(pixmap)
+ 
+        # Resize label to image size
+        # label.resize(pixmap.width(),pixmap.height())
+
+        layout.addWidget(label)
+
         layout.addWidget(weather_now)
 
 
@@ -57,8 +73,6 @@ class CalendarWidget(QWidget):
 
         # Create a list widget for calendar events
         events_list = QListWidget()
-        events_list.setAlternatingRowColors(True)
-        events_list.setStyleSheet("background-color: #f9f9f9;")
         events_list.addItems(events)
         layout.addWidget(events_list)
 
@@ -86,10 +100,10 @@ class MainWindow(QMainWindow):
 
         # Add Widgets
         weather_widget = WeatherWidget(weather)
-        calendar_widget = CalendarWidget(calendar)
+        # calendar_widget = CalendarWidget(calendar)
 
         layout.addWidget(weather_widget)
-        layout.addWidget(calendar_widget)
+        # layout.addWidget(calendar_widget)
 
         central_widget.setLayout(layout)
 

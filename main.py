@@ -5,10 +5,9 @@ from data.calendar import GoogleCal
 from PyQt5.QtWidgets import QApplication
 from ui.display import MainWindow
 import sys
+from data.location import CITY
 
-CITY = "Denver"
 STYLE_SHEET="ui/stylesheet.qss"
-
 
 def main(): 
     # load env variables for secret keys
