@@ -7,6 +7,8 @@ from ui.display import MainWindow
 import sys
 
 CITY = "Denver"
+STYLE_SHEET="ui/stylesheet.qss"
+
 
 def main(): 
     # load env variables for secret keys
@@ -18,6 +20,9 @@ def main():
 
     # Create the application instance
     app = QApplication(sys.argv)
+
+    with open(STYLE_SHEET,"r") as f:
+        app.setStyleSheet(f.read())
 
     # Create the main window
     window = MainWindow(weather, calendar)
