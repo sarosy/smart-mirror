@@ -1,5 +1,6 @@
 from data.calendar import GoogleCal
 from data.weather import Weather
+from data.reminders import Reminders
 from PyQt5.QtWidgets import QApplication
 from ui.display import MainWindow
 import sys
@@ -11,6 +12,7 @@ def main():
 
     weather = Weather(CITY)
     calendar = GoogleCal()
+    reminders = Reminders()
 
     # Create the application instance
     app = QApplication(sys.argv)
