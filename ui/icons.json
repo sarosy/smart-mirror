@@ -1,0 +1,242 @@
+{
+    "1000": {
+		"meaning": "Sunny/clear",
+		"day": "sun.png",
+        "night": "clear.png"
+    },
+    "1003": {
+		"meaning": "Partly cloudy",
+		"day": "cloudy-day.png",
+        "night": "cloudy-night.png"
+    },
+    "1006": {
+		"meaning": "Cloudy",
+		"day": "clouds.png",
+        "night": "clouds.png"
+    },
+    "1009": {
+		"meaning": "Overcast",
+		"day": "clouds.png",
+        "night": "clouds.png"
+    },
+    "1030": {
+		"meaning": "Mist",
+		"day": "fog-day.png",
+        "night": "fog-night.png"
+    },
+    "1063": {
+		"meaning": "Patchy rain possible",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1066": {
+		"meaning": "Patchy snow possible",
+		"day": "little-snow.png",
+        "night": "little-snow.png"
+    },
+    "1069": {
+		"meaning": "Patchy sleet possible",
+		"day": "sleet.png",
+        "night": "sleet.png"
+    },
+    "1072": {
+		"meaning": "Patchy freezing drizzle possible",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1087": {
+		"meaning": "Thundery outbreaks possible",
+		"day": "storm.png",
+        "night": "storm.png"
+    },
+    "1114": {
+		"meaning": "Blowing snow",
+		"day": "snow.png",
+        "night": "snow.png"
+    },
+    "1117": {
+		"meaning": "Blizzard",
+		"day": "blizzard.png",
+        "night": "blizzard.png"
+    },
+    "1135": {
+		"meaning": "Fog",
+		"day": "fog-day.png",
+        "night": "fog-night.png"
+    },
+    "1147": {
+		"meaning": "Freezing fog",
+		"day": "fog-day.png",
+        "night": "fog-night.png"
+    },
+    "1150": {
+		"meaning": "Patchy light drizzle",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1153": {
+		"meaning": "Light drizzle",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1168": {
+		"meaning": "Freezing drizzle",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1171": {
+		"meaning": "Heavy freezing drizzle",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1180": {
+		"meaning": "Patchy light rain",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1183": {
+		"meaning": "Light rain",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1186": {
+		"meaning": "Moderate rain at times",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1189": {
+		"meaning": "Moderate rain",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1192": {
+		"meaning": "Heavy rain at times",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1195": {
+		"meaning": "Heavy rain",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1198": {
+		"meaning": "Light freezing rain",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1201": {
+		"meaning": "Moderate or heavy freezing rain",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1204": {
+		"meaning": "Light sleet",
+		"day": "sleet.png",
+        "night": "sleet.png"
+    },
+    "1207": {
+		"meaning": "Moderate or heavy sleet",
+		"day": "sleet.png",
+        "night": "sleet.png"
+    },
+    "1210": {
+		"meaning": "Patchy light snow",
+		"day": "little-snow.png",
+        "night": "little-snow.png"
+    },
+    "1213": {
+		"meaning": "Light snow",
+		"day": "little-snow.png",
+        "night": "little-snow.png"
+    },
+    "1216": {
+		"meaning": "Patchy moderate snow",
+		"day": "snow.png",
+        "night": "snow.png"
+    },
+    "1219": {
+		"meaning": "Moderate snow",
+		"day": "snow.png",
+        "night": "snow.png"
+    },
+    "1222": {
+		"meaning": "Patchy heavy snow",
+		"day": "snow.png",
+        "night": "snow.png"
+    },
+    "1225": {
+		"meaning": "Heavy snow",
+		"day": "snow.png",
+        "night": "snow.png"
+    },
+    "1237": {
+		"meaning": "Ice pellets",
+		"day": "hail.png",
+        "night": "hail.png"
+    },
+    "1240": {
+		"meaning": "Light rain shower",
+		"day": "little-rain.png",
+        "night": "little-rain.png"
+    },
+    "1243": {
+		"meaning": "Moderate or heavy rain shower",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1246": {
+		"meaning": "Torrential rain shower",
+		"day": "rain.png",
+        "night": "rain.png"
+    },
+    "1249": {
+		"meaning": "Light sleet showers",
+		"day": "sleet.png",
+        "night": "sleet.png"
+    },
+    "1252": {
+		"meaning": "Moderate or heavy sleet showers",
+		"day": "sleet.png",
+        "night": "sleet.png"
+    },
+    "1255": {
+		"meaning": "Light snow showers",
+		"day": "little-snow.png",
+        "night": "little-snow.png"
+    },
+    "1258": {
+		"meaning": "Moderate or heavy snow showers",
+		"day": "snow.png",
+        "night": "snow.png"
+    },
+    "1261": {
+		"meaning": "Light showers of ice pellets",
+		"day": "hail.png",
+        "night": "hail.png"
+    },
+    "1264": {
+		"meaning": "Moderate or heavy showers of ice pellets",
+		"day": "hail.png",
+        "night": "hail.png"
+    },
+    "1273": {
+		"meaning": "Patchy light rain with thunder",
+		"day": "storm.png",
+        "night": "storm.png"
+    },
+    "1276": {
+		"meaning": "Moderate or heavy rain with thunder",
+		"day": "storm.png",
+        "night": "storm.png"
+    },
+    "1279": {
+		"meaning": "Patchy light snow with thunder",
+		"day": "snow.png",
+        "night": "snow.png"
+    },
+    "1282": {
+		"meaning": "Moderate or heavy snow with thunder",
+		"day": "snow.png",
+        "night": "snow.png"
+    }
+}
