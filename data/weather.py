@@ -39,7 +39,7 @@ class Weather:
                 "rain_probability" : self.weather['forecast']['forecastday'][0]['day']['daily_chance_of_rain'],
                 "moon_phase" : self.weather['forecast']['forecastday'][0]['astro']['moon_phase']
             }
-            return weather_string(curr_weather)
+            return curr_weather
         else:
             print(f"Failed to fetch weather data: {response.status_code}")
             return None
@@ -55,7 +55,6 @@ class Weather:
 
         # Check if the sun has set to get appropriate icon
         if (now < sunset_dt):
-            pass
             icon = self.icons[f"{code}"]['day']
         else: 
             icon = self.icons[f"{code}"]['night']
