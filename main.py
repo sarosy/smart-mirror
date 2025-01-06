@@ -12,7 +12,7 @@ def main():
 
     weather = Weather(CITY)
     calendar = GoogleCal()
-    reminders = Reminders()
+    # reminders = Reminders()
 
     # Create the application instance
     app = QApplication(sys.argv)

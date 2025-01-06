@@ -70,6 +70,7 @@ class CalendarWidget(QWidget):
         layout.addWidget(label)
 
         events = self.calendar.fetch_calendar_events()
+        print(events)
 
         # Create a list widget for calendar events
         events_list = QListWidget()
