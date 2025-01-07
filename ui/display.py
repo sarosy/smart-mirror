@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QHBoxLayout,QGridLayout, QWidget, QMainWindow, QListWidget, QSizePolicy
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap
-from datetime import datetime
+import datetime
 import sys
 
 # Clock widget
@@ -20,7 +20,7 @@ class ClockWidget(QLabel):
 
     def update_time(self):
         """Update the time display."""
-        current_time = datetime.now().strftime("%I:%M %p")
+        current_time = datetime.datetime.now().strftime("%I:%M %p")
         self.setText(current_time)
 
 # Weather widget
@@ -87,24 +87,53 @@ class CalendarWidget(QWidget):
 
         self.calendar = calendar
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
+        main_layout = QVBoxLayout()
+        self.setLayout(main_layout)
+        
         label = QLabel("This week's events:")
+        label.setStyleSheet("font-size: 36px; color: white;")
         label.setAlignment(Qt.AlignCenter)
 
-        # Set the label as the central widget
-        layout.addWidget(label)
+        main_layout.addWidget(label)
 
-        events = self.calendar.fetch_calendar_events()
-        print(events)
+        weekly_schedule = QHBoxLayout()
 
-        # Create a list widget for calendar events
-        events_list = QListWidget()
-        events_list.addItems(events)
-        layout.addWidget(events_list)
+        # Get the start of the current day as a UTC datetime
+        start_date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        start_date_utc = start_date.astimezone(datetime.timezone.utc)
+        
+        # Get events for each of the next 7 days and add them to the weekly schedule
+        for i in range(7):
 
+            # Create label for the day
+            day_layout = QVBoxLayout()
+            day_str = start_date_utc.strftime("%a, %b %d")
+            day_label = QLabel(day_str)
+            label.setStyleSheet("font-size: 20px; color: white;")
+            day_layout.addWidget(day_label)
+            
+            # Get events for that day
+            events = self.calendar.fetch_calendar_events(start_date_utc)
+
+            # Get relevant event information to display
+            event_summaries = []
+            for event in events:
+                event_summaries.append(f"{event['start'].strftime('%I:%M %p')} - {event['end'].strftime('%I:%M %p')}: {event['summary']}")
+
+            if not event_summaries:
+                event_summaries.append("No events scheduled for today.")
+
+            # Add event summaries
+            events_list = QListWidget()
+            events_list.addItems(event_summaries)
+            day_layout.addWidget(events_list)
+            weekly_schedule.addLayout(day_layout)
+
+            timedelta = datetime.timedelta(days=1)
+            start_date_utc += timedelta
+
+        main_layout.addLayout(weekly_schedule)
+        
 class MainWindow(QMainWindow):
     def __init__(self, weather, calendar):
         super().__init__()

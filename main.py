@@ -22,7 +22,6 @@ def main():
 
     # Create the main window
     window = MainWindow(weather, calendar)
-    # window.show()
     window.showFullScreen()
 
     # Execute the application

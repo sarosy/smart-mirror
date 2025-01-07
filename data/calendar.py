@@ -73,7 +73,7 @@ class GoogleCal:
             json.dump(creds_dict, token)
     
 
-    def fetch_calendar_events(self):
+    def fetch_calendar_events(self, start_date):
 
         try:
             service = build('calendar', 'v3', credentials=self.creds)
@@ -90,18 +90,16 @@ class GoogleCal:
 
             all_events = []
 
-            now = datetime.datetime.now(datetime.timezone.utc)
-            timedelta = datetime.timedelta(days=7)
-            week_end = now + timedelta
-            time_min = now.strftime(GOOGLE_DATE_QUERY_FORMAT)
-            time_max = week_end.strftime(GOOGLE_DATE_QUERY_FORMAT)
-
+            timedelta = datetime.timedelta(hours=23, minutes=59)
+            end_date = start_date + timedelta
+            time_min = start_date.strftime(GOOGLE_DATE_QUERY_FORMAT)
+            time_max = end_date.strftime(GOOGLE_DATE_QUERY_FORMAT)
+            
             for calendar in enabled_calendars:
                 events_result = service.events().list(
                     calendarId=calendar['id'],
                     timeMin=time_min,
                     timeMax=time_max,
-                    maxResults=5,
                     singleEvents=True,
                     orderBy='startTime'
                 ).execute()
@@ -110,14 +108,17 @@ class GoogleCal:
                 all_events.extend(events)
 
             if not all_events:
-                print("No upcoming events found in any calendars.")
+                print(f"No events from {time_min} to {time_max} found in any calendars.")
                 return []
+            
             
             # Convert start date or datetime to a datetime object
             def get_event_datetime(event, start):
-                
+
                 time_key = 'start' if start else 'end'
 
+
+                # TODO deal with time zones on events
                 if 'dateTime' in event[time_key]:
                     # If 'dateTime' is present, use it
                     start = event[time_key]['dateTime']
@@ -130,16 +131,20 @@ class GoogleCal:
                     # Handle unexpected cases where neither 'dateTime' nor 'date' is present
                     raise ValueError(f"Event {time_key} time is missing.")
 
-            # Sort events by start datetime
-            sorted_events = sorted(all_events, key=lambda event: get_event_datetime(event, start=True))
-
-            event_strings = []
-            for event in sorted_events:
+            event_summaries = []
+            for event in all_events:
                 start = get_event_datetime(event, start=True)
                 end = get_event_datetime(event, start=False)
-                event_strings.append(f"{start} - {end}: {event['summary']}")
-
-            return event_strings
+                summary = event['summary']
+                event_summaries.append({
+                    'start': start,
+                    'end': end,
+                    'summary' : summary,
+                    })
+                
+            # Sort events by start datetime
+            sorted_events = sorted(event_summaries, key=lambda event: event['start'])
+            return sorted_events
 
         except Exception as e:
             print(f"An error occurred: {e}")
