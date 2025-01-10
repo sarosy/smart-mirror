@@ -17,10 +17,9 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 GOOGLE_DATE_QUERY_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
-logger = logging.getLogger(__name__)
-
 class GoogleCal:
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.creds = self.authenticate_google_account()
         self.service = build('calendar', 'v3', credentials=self.creds)
 
@@ -30,17 +29,21 @@ class GoogleCal:
         token_file = os.getenv('GOOGLE_TOKEN_FILE')
         secret_file = os.getenv('GOOGLE_SECRET_FILE')
     
+        self.logger.info(f"Loading credentials from {token_file}")
         creds = self.load_credentials(token_file)
 
         # If there are no valid credentials, let the user log in
         if not creds or not creds.valid:
+            self.logger.info("No valid credentials found")
             if creds and creds.expired and creds.refresh_token:
                 try:
+                    self.logger.info("Refreshing credentials")
                     creds.refresh(Request())
                 except RefreshError as e:
-                    logger.error(f"Failed to refresh credentials: {e}")
+                    self.logger.error(f"Error refreshing credentials: {e}")
                     creds= self.authorization_flow(secret_file)
             elif not creds or not creds.refresh_token:
+                self.logger.info("No refresh token found, starting authorization flow")
                 creds= self.authorization_flow(secret_file)
 
             self.save_credentials(creds, token_file)
@@ -62,14 +65,15 @@ class GoogleCal:
                     if isinstance(creds_data, dict):
                         creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
                     else:
-                        logger.error("Error: creds_data is not a valid dictionary")
+                        self.logger.error("Error: creds_data is not a valid dictionary")
                 except json.JSONDecodeError as e:
-                    logger.error(f"Error decoding JSON: {e}")
+                    self.logger.error(f"Error decoding JSON: {e}")
                 except ValueError as e:
-                    logger.error(f"Error loading credentials: {e}")
+                    self.logger.error(f"Error loading credentials: {e}")
         return creds
 
     def save_credentials(self, creds, token_file):
+        self.logger.info(f"Saving credentials to {token_file}")
         with open(token_file, 'w', encoding='utf-8') as token:
             token_data = creds.to_json()
             creds_dict = json.loads(token_data)
@@ -77,15 +81,19 @@ class GoogleCal:
     
 
     def fetch_calendar_events(self, start_date):
+        self.logger.info(f"Fetching events for {start_date}")
         enabled_calendars = self.get_enabled_calendars()
         all_events = self.get_events_for_calendars(enabled_calendars, start_date)
         return all_events
 
     def get_enabled_calendars(self):
+        self.logger.info("Fetching enabled calendars")
         calendar_list = self.service.calendarList().list().execute()
         return [calendar for calendar in calendar_list['items'] if calendar.get('selected', True)]
 
     def get_events_for_calendars(self, calendars, start_date):
+        self.logger.info(f"Fetching events for {len(calendars)} calendars")
+
         all_events = []
         timedelta = datetime.timedelta(hours=23, minutes=59)
         end_date = start_date + timedelta
@@ -102,10 +110,10 @@ class GoogleCal:
                 ).execute()
                 all_events.extend(events_result.get('items', []))
             except HttpError as http_err:
-                logger.error(f"HTTP error occurred: {http_err}")
+                self.logger.error(f"HTTP error occurred: {http_err}")
                 return []
             except Exception as e:
-                logger.error(f"An unexpected error occurred: {e}")
+                self.logger.error(f"Error: {e}")
                 return []
         return self.process_events(all_events)
 

@@ -1,5 +1,6 @@
 import datetime
 from dotenv import load_dotenv
+import logging
 import json
 import os
 import requests
@@ -10,6 +11,8 @@ ICONS_FILE = "ui/icons.json"
 class Weather:
     def __init__(self, city):
 
+        self.logger = logging.getLogger(__name__)
+
         # load env variables for secret keys
         load_dotenv()
         api_key = os.getenv('WEATHER_API_KEY')
@@ -18,10 +21,13 @@ class Weather:
         self.city = city
         self.timezone = datetime.datetime.now().astimezone().tzinfo
         self.weather = None
+
         with open(ICONS_FILE, 'r', encoding='utf-8') as f:
             self.icons = json.load(f)
 
     def fetch_weather(self):
+
+        self.logger.info(f"Fetching weather for {self.city}")
 
         # Fetch weather data from OpenWeatherMap url passed in
         params = {
@@ -43,10 +49,10 @@ class Weather:
                     "moon_phase" : self.weather['forecast']['forecastday'][0]['astro'].get('moon_phase', 'Unknown')
                 }
                 return curr_weather
-        except requests.exceptions.RequestException as e:
-            print(f"Failed to fetch weather data: {e}")
-        except requests.exceptions.ConnectionError as e: 
-            print(f"Connection error: {e}") 
+        except requests.exceptions.RequestException as reqerr:
+            print(f"Error fetching weather data: {reqerr}")
+        except requests.exceptions.ConnectionError as connerr: 
+            print(f"Connection error: {connerr}") 
         return None
     
     def get_icon(self):
@@ -65,7 +71,3 @@ class Weather:
             icon = self.icons[f"{code}"]['night']
 
         return f"ui/icons/{icon}"
-
-        
-def weather_string(weather):
-    return json.dumps(weather)
