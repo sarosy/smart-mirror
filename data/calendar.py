@@ -1,3 +1,5 @@
+import logging
+from googleapiclient.errors import HttpError
 import datetime
 from dotenv import load_dotenv
 from google.auth.exceptions import RefreshError
@@ -14,8 +16,8 @@ import os
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 GOOGLE_DATE_QUERY_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-DESIRED_DATE_FORMAT = '%m/%d %I:%M %p'
-DESIRED_TIME_FORMAT = '%I:%M %p'
+
+logger = logging.getLogger(__name__)
 
 class GoogleCal:
     def __init__(self):
@@ -35,7 +37,7 @@ class GoogleCal:
                 try:
                     creds.refresh(Request())
                 except RefreshError as e:
-                    print(f"Failed to refresh credentials: {e}")
+                    logger.error(f"Failed to refresh credentials: {e}")
                     creds= self.authorization_flow(secret_file)
             elif not creds or not creds.refresh_token:
                 creds= self.authorization_flow(secret_file)
@@ -59,11 +61,11 @@ class GoogleCal:
                     if isinstance(creds_data, dict):
                         creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
                     else:
-                        print("Error: creds_data is not a valid dictionary")
+                        logger.error("Error: creds_data is not a valid dictionary")
                 except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON: {e}")
+                    logger.error(f"Error decoding JSON: {e}")
                 except ValueError as e:
-                    print(f"Error loading credentials: {e}")
+                    logger.error(f"Error loading credentials: {e}")
         return creds
 
     def save_credentials(self, creds, token_file):
@@ -96,19 +98,26 @@ class GoogleCal:
             time_max = end_date.strftime(GOOGLE_DATE_QUERY_FORMAT)
             
             for calendar in enabled_calendars:
-                events_result = service.events().list(
-                    calendarId=calendar['id'],
-                    timeMin=time_min,
-                    timeMax=time_max,
-                    singleEvents=True,
-                    orderBy='startTime'
-                ).execute()
+                try:
+                    events_result = service.events().list(
+                        calendarId=calendar['id'],
+                        timeMin=time_min,
+                        timeMax=time_max,
+                        singleEvents=True,
+                        orderBy='startTime'
+                    ).execute()
 
-                events = events_result.get('items', [])
-                all_events.extend(events)
+                    events = events_result.get('items', [])
+                    all_events.extend(events)
+                except HttpError as http_err:
+                    logger.error(f"HTTP error occurred: {http_err}")
+                    return []
+                except Exception as e:
+                    logger.error(f"An unexpected error occurred: {e}")
+                    return []
 
             if not all_events:
-                print(f"No events from {time_min} to {time_max} found in any calendars.")
+                logger.info(f"No events from {time_min} to {time_max} found in any calendars.")
                 return []
             
             
@@ -147,6 +156,6 @@ class GoogleCal:
             return sorted_events
 
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logger.error(f"An unexpected error occurred: {e}")
             return []
 
