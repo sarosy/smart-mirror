@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 class GoogleCal:
     def __init__(self):
         self.creds = self.authenticate_google_account()
+        self.service = build('calendar', 'v3', credentials=self.creds)
 
     def authenticate_google_account(self):
         # load env variables for token and key file locations
@@ -76,86 +77,63 @@ class GoogleCal:
     
 
     def fetch_calendar_events(self, start_date):
+        enabled_calendars = self.get_enabled_calendars()
+        all_events = self.get_events_for_calendars(enabled_calendars, start_date)
+        return all_events
 
-        try:
-            service = build('calendar', 'v3', credentials=self.creds)
+    def get_enabled_calendars(self):
+        calendar_list = self.service.calendarList().list().execute()
+        return [calendar for calendar in calendar_list['items'] if calendar.get('selected', True)]
 
-            # List all calendars the user has access to
-            calendar_list = service.calendarList().list().execute()
-
-            enabled_calendars = []
-
-            for calendar in calendar_list['items']:
-                # Check if the calendar is selected (enabled)
-                if calendar.get('selected', True):
-                    enabled_calendars.append(calendar)
-
-            all_events = []
-
-            timedelta = datetime.timedelta(hours=23, minutes=59)
-            end_date = start_date + timedelta
-            time_min = start_date.strftime(GOOGLE_DATE_QUERY_FORMAT)
-            time_max = end_date.strftime(GOOGLE_DATE_QUERY_FORMAT)
-            
-            for calendar in enabled_calendars:
-                try:
-                    events_result = service.events().list(
-                        calendarId=calendar['id'],
-                        timeMin=time_min,
-                        timeMax=time_max,
-                        singleEvents=True,
-                        orderBy='startTime'
-                    ).execute()
-
-                    events = events_result.get('items', [])
-                    all_events.extend(events)
-                except HttpError as http_err:
-                    logger.error(f"HTTP error occurred: {http_err}")
-                    return []
-                except Exception as e:
-                    logger.error(f"An unexpected error occurred: {e}")
-                    return []
-
-            if not all_events:
-                logger.info(f"No events from {time_min} to {time_max} found in any calendars.")
+    def get_events_for_calendars(self, calendars, start_date):
+        all_events = []
+        timedelta = datetime.timedelta(hours=23, minutes=59)
+        end_date = start_date + timedelta
+        time_min = start_date.strftime(GOOGLE_DATE_QUERY_FORMAT)
+        time_max = end_date.strftime(GOOGLE_DATE_QUERY_FORMAT)
+        for calendar in calendars:
+            try:
+                events_result = self.service.events().list(
+                    calendarId=calendar['id'],
+                    timeMin=time_min,
+                    timeMax=time_max,
+                    singleEvents=True,
+                    orderBy='startTime'
+                ).execute()
+                all_events.extend(events_result.get('items', []))
+            except HttpError as http_err:
+                logger.error(f"HTTP error occurred: {http_err}")
                 return []
-            
-            
-            # Convert start date or datetime to a datetime object
-            def get_event_datetime(event, start):
+            except Exception as e:
+                logger.error(f"An unexpected error occurred: {e}")
+                return []
+        return self.process_events(all_events)
 
-                time_key = 'start' if start else 'end'
+    def process_events(self, events):
+        event_summaries = []
+        for event in events:
+            start = self.get_event_datetime(event, start=True)
+            end = self.get_event_datetime(event, start=False)
+            summary = event['summary']
+            event_summaries.append({
+                'start': start,
+                'end': end,
+                'summary': summary,
+            })
+        return sorted(event_summaries, key=lambda event: event['start'])
 
-
-                # TODO deal with time zones on events
-                if 'dateTime' in event[time_key]:
-                    # If 'dateTime' is present, use it
-                    start = event[time_key]['dateTime']
-                    return datetime.datetime.fromisoformat(start)
-                elif 'date' in event[time_key]:
-                    # If only 'date' is present, assume the start of the day
-                    start = event[time_key]['date']
-                    return datetime.datetime.fromisoformat(start).replace(tzinfo=datetime.timezone.utc)
-                else:
-                    # Handle unexpected cases where neither 'dateTime' nor 'date' is present
-                    raise ValueError(f"Event {time_key} time is missing.")
-
-            event_summaries = []
-            for event in all_events:
-                start = get_event_datetime(event, start=True)
-                end = get_event_datetime(event, start=False)
-                summary = event['summary']
-                event_summaries.append({
-                    'start': start,
-                    'end': end,
-                    'summary' : summary,
-                    })
-                
-            # Sort events by start datetime
-            sorted_events = sorted(event_summaries, key=lambda event: event['start'])
-            return sorted_events
-
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
-            return []
+    def get_event_datetime(self, event, start):
+        time_key = 'start' if start else 'end'
+        # TODO deal with time zones on events
+        if 'dateTime' in event[time_key]:
+            # If 'dateTime' is present, use it
+            start = event[time_key]['dateTime']
+            return datetime.datetime.fromisoformat(start)
+        elif 'date' in event[time_key]:
+            # If only 'date' is present, assume the start of the day
+            start = event[time_key]['date']
+            return datetime.datetime.fromisoformat(start).replace(tzinfo=datetime.timezone.utc)
+        else:
+            # Handle unexpected cases where neither 'dateTime' nor 'date' is present
+            raise ValueError(f"Event {time_key} time is missing.")
 
