@@ -28,21 +28,26 @@ class Weather:
             "q": self.city,
             "key": self.api_key
         }
-        response = requests.get(WEATHER_URL, params=params)
-        if response.status_code == 200:
+    
+        try:
+            response = requests.get(WEATHER_URL, params=params)
+            response.raise_for_status()
             self.weather = response.json()
-            curr_weather = {
-                "temp": round(self.weather['current']['temp_f']),
-                "condition": self.weather['current']['condition']['text'],
-                "min" : round(self.weather['forecast']['forecastday'][0]['day']['mintemp_f']),
-                "max" : round(self.weather['forecast']['forecastday'][0]['day']['maxtemp_f']),
-                "rain_probability" : self.weather['forecast']['forecastday'][0]['day']['daily_chance_of_rain'],
-                "moon_phase" : self.weather['forecast']['forecastday'][0]['astro']['moon_phase']
-            }
-            return curr_weather
-        else:
-            print(f"Failed to fetch weather data: {response.status_code}")
-            return None
+            if 'current' in self.weather and 'forecast' in self.weather:
+                curr_weather = {
+                    "temp": round(self.weather['current'].get('temp_f', 0)),
+                    "condition": self.weather['current'].get('condition', {}).get('text', 'Unknown'),
+                    "min" : round(self.weather['forecast']['forecastday'][0]['day'].get('mintemp_f', 0)),
+                    "max" : round(self.weather['forecast']['forecastday'][0]['day'].get('maxtemp_f', 0)),
+                    "rain_probability" : self.weather['forecast']['forecastday'][0]['day'].get('daily_chance_of_rain', 0),
+                    "moon_phase" : self.weather['forecast']['forecastday'][0]['astro'].get('moon_phase', 'Unknown')
+                }
+                return curr_weather
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to fetch weather data: {e}")
+        except requests.exceptions.ConnectionError as e: 
+            print(f"Connection error: {e}") 
+        return None
     
     def get_icon(self):
         # Get the code for the current weather conditions
